@@ -92,7 +92,11 @@ let lookup m x = List.assoc x m
    destination (usually a register).
 *)
 let compile_operand (ctxt:ctxt) (dest:X86.operand) : Ll.operand -> ins =
-  function _ -> failwith "compile_operand unimplemented"
+  function
+  | Ll.Null -> (Movq, [Imm (Lit 0L); dest])
+  | Ll.Const i -> (Movq, [Imm (Lit i); dest])
+  | Ll.Gid g -> (Leaq, [Ind3 (Lbl (Platform.mangle g), Rip); dest])
+  | Ll.Id u -> let src_operand = lookup ctxt.layout u in (Movq, [src_operand; dest])
 
 
 
